@@ -48,6 +48,32 @@ public class DoctorsController : ControllerBase
         var doctors = _persistence.GetActiveDoctors();
         return Ok(doctors);
     }
+    [HttpGet("{id}")]
+    public IActionResult GetById(Guid id)
+    {
+        var doctor = _persistence.GetActiveDoctorById(id);
+        if (doctor == null) 
+            return NotFound(new { Message = "Médico no encontrado o inactivo" });
+
+        // Retornamos solo los datos solicitados por la consigna
+        var result = new
+        {
+            doctor.Name,
+            doctor.LicenseNumber,
+            SpecialityName = doctor.Speciality.Name
+        };
+
+        return Ok(result);
+    }
+    [HttpDelete("{id}")]
+    public IActionResult Delete(Guid id)
+    {
+        var success = _persistence.DeactivateDoctor(id);
+        if (!success) 
+            return NotFound(new { Message = "Médico no encontrado o inactivo" });
+
+        return NoContent();
+    }
 }
 
 public class DoctorRequest
